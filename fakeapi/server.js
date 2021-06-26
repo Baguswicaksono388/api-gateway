@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const axios = require('axios');
 const HOST = 'localhost'
-const PORT = 3001;
+const PORT = 3002;
 const PROTOCOL = 'http'
 
 app.use(express.json());

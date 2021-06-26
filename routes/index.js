@@ -5,14 +5,28 @@ const axios = require('axios');
 const registry = require('./registry.json');
 const fs = require('fs');
 const { error } = require('console');
+const loadbalancer = require('../util/loadbalancer');
 
 // all untuk semua method (get, post, dll)
 router.all('/:apiName/:path', (req, res, next) => {
-    console.log(req.params.apiName);
-    if (registry.services[req.params.apiName]) {        
+    // console.log(req.params.apiName);
+    const service = registry.services[req.params.apiName];
+    if (service) {
+        if (!service.loadBalanceStrategy) {
+            service.loadBalanceStrategy = 'ROUND_ROBIN';
+            fs.writeFile('./routes/registry.json', JSON.stringify(registry), (error) => {
+                if (error) {
+                    res.send("Couldn't write load balance strategy" + error);
+                }
+            });
+        }
+
+        const newIndex = loadbalancer[service.loadBalanceStrategy](service);
+        const url = service.instances[newIndex].url;
+        console.log(url);
         axios({
             method: req.method,
-            url: registry.services[req.params.apiName].url + req.params.path,
+            url: url + req.params.path,
             headers: req.headers,
             data: req.body
         }).then((response) => {
