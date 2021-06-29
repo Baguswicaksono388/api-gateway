@@ -11,14 +11,14 @@ app.use(express.json());
 // app.use(helmet()); //add security
 
 const auth = (req, res, next) => {
-    const url = req.protocol + '://' + req.host + ':' + PORT + req.path;
+    const url = req.protocol + '://' + req.host + ':' + PORT + req.path; //output http://localhost:3000/register
     const authString = Buffer.from(req.headers.authorization, 'base64').toString('utf8');
     const authParts = authString.split(':');
     const username = authParts[0];
     const password = authParts[1];
     console.log(authString);
     console.log(username + ' | ' + password);
-    const user = registry.auth.users[username];
+    const user = registry.auth.users[username]; //output { username: 'bagus', password: 'password' }
     if (user) {
         if (user.username === username && user.password === password) {
             next();
@@ -41,7 +41,7 @@ const auth = (req, res, next) => {
 app.get('/ui', (req, res) => {
     res.render('index', {services: registry.services});
 })
-// app.use(auth);
+app.use(auth);
 app.use("/", routes);
 
 app.listen(PORT, () => {
